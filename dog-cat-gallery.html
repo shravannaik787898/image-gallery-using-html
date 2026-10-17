@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cats & Dogs Gallery</title>
+<style>
+/* CSS Reset & General Rules */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0c10;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    color: #ffffff;
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+/* Header & Title Styling */
+header {
+    text-align: center;
+    padding: 40px 20px 20px;
+}
+
+h1 {
+    font-size: 2.6em;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #00fff7, #ff00de);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #94a3b8;
+    font-size: 1.05em;
+    margin-bottom: 25px;
+}
+
+/* Filter Buttons */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #161b22;
+    border: 2px solid #30363d;
+    color: #e6edf3;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: #00fff7;
+    color: #00fff7;
+    box-shadow: 0 0 12px rgba(0, 255, 247, 0.25);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #00fff7, #ff00de);
+    color: #0a0c10;
+    border-color: transparent;
+    box-shadow: 0 0 18px rgba(255, 0, 222, 0.4);
+}
+
+/* Gallery Grid */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.gallery-item {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 12px;
+    aspect-ratio: 4 / 3;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 2px solid #21262d;
+    background: #161b22;
+}
+
+.gallery-item:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 255, 247, 0.35);
+    border-color: #00fff7;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.08);
+}
+
+.gallery-item .label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(10, 12, 16, 0.95));
+    color: #ffffff;
+    padding: 24px 12px 12px;
+    font-size: 0.95em;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Lightbox Modal */
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 12, 16, 0.95);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.5em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.lightbox-close:hover {
+    background: rgba(255, 0, 85, 0.6);
+    border-color: #ff0055;
+    transform: scale(1.1);
+}
+
+.lightbox-image-wrapper {
+    max-width: 85%;
+    max-height: 80vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 0 35px rgba(0, 255, 247, 0.3);
+    border: 1px solid rgba(0, 255, 247, 0.4);
+}
+
+.lightbox-caption {
+    color: #ffffff;
+    font-size: 1.4em;
+    margin-top: 16px;
+    text-align: center;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(0, 255, 247, 0.6);
+}
+
+.lightbox-prev,
+.lightbox-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1.8em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: background 0.2s, transform 0.2s;
+    user-select: none;
+}
+
+.lightbox-prev:hover,
+.lightbox-next:hover {
+    background: rgba(0, 255, 247, 0.4);
+    border-color: #00fff7;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-prev {
+    left: 25px;
+}
+
+.lightbox-next {
+    right: 25px;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+    .gallery {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    .lightbox-prev { left: 12px; }
+    .lightbox-next { right: 12px; }
+    .lightbox-close { top: 15px; left: 15px; }
+}
+
+@media (max-width: 480px) {
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Cats & Dogs Gallery</h1>
+    <p class="subtitle">Discover 16 famous feline and canine breeds</p>
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterGallery('all')">All Breeds</button>
+        <button class="filter-btn" onclick="filterGallery('cat')">Cats 🐱</button>
+        <button class="filter-btn" onclick="filterGallery('dog')">Dogs 🐶</button>
+    </div>
+</header>
+
+<div class="gallery" id="gallery"></div>
+
+<!-- Lightbox Modal -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="closeBtn" title="Close (Esc)">✕</button>
+    <button class="lightbox-prev" id="prevBtn" title="Previous (Left Arrow)">‹</button>
+    <div class="lightbox-image-wrapper">
+        <img class="lightbox-image" id="lightboxImg" src="" alt="">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+    <button class="lightbox-next" id="nextBtn" title="Next (Right Arrow)">›</button>
+</div>
+
+<script>
+// SVG Fallback Generator for image loading safety
+function getFallbackSvg(name, type) {
+    const isCat = type === 'cat';
+    const icon = isCat ? '🐱' : '🐶';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+        <rect width="100%" height="100%" fill="#161b22"/>
+        <circle cx="400" cy="250" r="100" fill="none" stroke="${isCat ? '#ff00de' : '#00fff7'}" stroke-width="4" opacity="0.5"/>
+        <text x="400" y="270" font-size="70" text-anchor="middle">${icon}</text>
+        <text x="400" y="420" font-family="'Segoe UI', sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">${name}</text>
+        <text x="400" y="460" font-family="'Segoe UI', sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle">${isCat ? 'Feline Breed' : 'Canine Breed'}</text>
+    </svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+// 16 Curated Breeds: 8 Cats, 8 Dogs
+const animalData = [
+    // CATS
+    { name: "Persian Cat", type: "cat", url: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=800&q=80" },
+    { name: "Siamese Cat", type: "cat", url: "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=800&q=80" },
+    { name: "Maine Coon", type: "cat", url: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80" },
+    { name: "Bengal Cat", type: "cat", url: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80" },
+    { name: "Ragdoll", type: "cat", url: "https://images.unsplash.com/photo-1574158622682-e40e69881006?auto=format&fit=crop&w=800&q=80" },
+    { name: "Sphynx Cat", type: "cat", url: "https://images.unsplash.com/photo-1520315342629-6ea920342047?auto=format&fit=crop&w=800&q=80" },
+    { name: "British Shorthair", type: "cat", url: "https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=800&q=80" },
+    { name: "Abyssinian Cat", type: "cat", url: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=800&q=80" },
+
+    // DOGS
+    { name: "Golden Retriever", type: "dog", url: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80" },
+    { name: "German Shepherd", type: "dog", url: "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=800&q=80" },
+    { name: "Siberian Husky", type: "dog", url: "https://images.unsplash.com/photo-1605568427561-40dd23c2acea?auto=format&fit=crop&w=800&q=80" },
+    { name: "French Bulldog", type: "dog", url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80" },
+    { name: "Beagle", type: "dog", url: "https://images.unsplash.com/photo-1505628346881-b72b27e84530?auto=format&fit=crop&w=800&q=80" },
+    { name: "Poodle", type: "dog", url: "https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=800&q=80" },
+    { name: "Pomeranian", type: "dog", url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80" },
+    { name: "Labrador Retriever", type: "dog", url: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80" }
+];
+
+let filteredData = [...animalData];
+let currentIndex = 0;
+
+const galleryEl = document.getElementById('gallery');
+const lightbox  = document.getElementById('lightbox');
+const lightboxImg     = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const closeBtn = document.getElementById('closeBtn');
+const prevBtn  = document.getElementById('prevBtn');
+const nextBtn  = document.getElementById('nextBtn');
+
+// Render Cards
+function renderGallery() {
+    galleryEl.innerHTML = '';
+    filteredData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'gallery-item';
+        card.innerHTML = `
+            <img src="${item.url}" alt="${item.name}" loading="lazy" onerror="this.onerror=null; this.src='${getFallbackSvg(item.name, item.type)}';">
+            <div class="label">${item.name}</div>
+        `;
+        card.addEventListener('click', () => openLightbox(index));
+        galleryEl.appendChild(card);
+    });
+}
+
+// Dynamic Filter
+function filterGallery(category) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    if (category === 'all') {
+        filteredData = [...animalData];
+    } else {
+        filteredData = animalData.filter(item => item.type === category);
+    }
+    renderGallery();
+}
+
+// Lightbox Logic
+function openLightbox(index) {
+    currentIndex = index;
+    updateLightbox();
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function nextImage() {
+    currentIndex = (currentIndex + 1) % filteredData.length;
+    updateLightbox();
+}
+
+function prevImage() {
+    currentIndex = (currentIndex - 1 + filteredData.length) % filteredData.length;
+    updateLightbox();
+}
+
+function updateLightbox() {
+    const item = filteredData[currentIndex];
+    lightboxImg.onerror = function() {
+        this.onerror = null;
+        this.src = getFallbackSvg(item.name, item.type);
+    };
+    lightboxImg.src = item.url;
+    lightboxImg.alt = item.name;
+    lightboxCaption.textContent = item.name;
+}
+
+// Event Listeners
+closeBtn.addEventListener('click', closeLightbox);
+nextBtn.addEventListener('click', nextImage);
+prevBtn.addEventListener('click', prevImage);
+
+lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) {
+        closeLightbox();
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'ArrowRight') nextImage();
+});
+
+// Initial Render
+renderGallery();
+</script>
+
+</body>
+</html>
